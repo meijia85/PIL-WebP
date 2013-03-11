@@ -19,11 +19,13 @@ class WebPImageFile(ImageFile.ImageFile):
         self.tile = [("raw", (0, 0) + self.size, 0, 'RGB')]
 
 def _save(im, fp, filename):
-    if im.mode != "RGB":
-        raise IOError("cannot write mode %s as WEBP" % im.mode)
+
+#        raise IOError("cannot write mode %s as WEBP" % im.mode)
     quality = im.encoderinfo.get("quality", 80)
-    
-    data = _webp.WebPEncodeRGB(im.tostring(), im.size[0], im.size[1], im.size[0] * 3, float(quality))
+    if im.mode == "RGB":    
+    	data = _webp.WebPEncodeRGB(im.tostring(), im.size[0], im.size[1], im.size[0] * 3, float(quality))
+    else:
+	data = _webp.WebPEncodeRGBA(im.tostring(), im.size[0], im.size[1], im.size[0] * 4, float(quality))
     fp.write(data)
 
 Image.register_open("WEBP", WebPImageFile, _accept)

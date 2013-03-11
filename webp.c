@@ -36,6 +36,40 @@ PyObject* WebPEncodeRGB_wrapper(PyObject* self, PyObject* args)
 
 }
 
+PyObject* WebPEncodeRGBA_wrapper(PyObject* self, PyObject* args)
+{
+    PyStringObject *rgba_string;
+    int width;
+    int height;
+    int stride;
+    float quality_factor;
+
+    if (!PyArg_ParseTuple(args, "Siiif", &rgba_string, &width, &height, &stride, &quality_factor)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    uint8_t *rgba;
+    Py_ssize_t size;
+    PyString_AsStringAndSize((struct PyObject *) rgba_string, &rgba, &size);
+
+    if (stride * height > size) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    uint8_t *output;
+    size_t ret_size = WebPEncodeRGBA(rgba, width, height, stride, quality_factor, &output);
+    if (ret_size > 0) {
+        PyObject *ret = PyString_FromStringAndSize(output, ret_size);
+        free(output);
+        return ret;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+
+}
+
 PyObject* WebPDecodeRGB_wrapper(PyObject* self, PyObject* args)
 {
     PyStringObject *webp_string;
@@ -61,6 +95,7 @@ PyObject* WebPDecodeRGB_wrapper(PyObject* self, PyObject* args)
 static PyMethodDef webpMethods[] =
 {
     {"WebPEncodeRGB", WebPEncodeRGB_wrapper, METH_VARARGS, "WebPEncodeRGB"},
+    {"WebPEncodeRGBA", WebPEncodeRGBA_wrapper, METH_VARARGS, "WebPEncodeRGBA"},
     {"WebPDecodeRGB", WebPDecodeRGB_wrapper, METH_VARARGS, "WebPEncodeRGB"},
     {NULL, NULL}
 };
