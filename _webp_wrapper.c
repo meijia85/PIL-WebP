@@ -116,8 +116,8 @@ static PyMethodDef webpMethods[] =
     {NULL, NULL}
 };
 
-void init_webp()
+void init_webp_wrapper()
 {
     PyObject* m;
-    m = Py_InitModule("_webp", webpMethods);
+    m = Py_InitModule("_webp_wrapper", webpMethods);
 }
