@@ -38,6 +38,18 @@ def _save(im, fp, filename):
         raise IOError("cannot write mode %s as WEBP" % im.mode)
     fp.write(data)
 
+def explicitRegisterOnPIL(ImageClass):
+    """
+    Instead of monkeypatching on import, this function lets you send the PIL.Image class and explicitly register on it
+    """
+    ImageClass.register_open("WEBP", WebPImageFile, _accept)
+    ImageClass.register_save("WEBP", _save)
+
+    ImageClass.register_extension("WEBP", ".webp")
+    ImageClass.register_mime("WEBP", "image/webp")
+
+
+
 Image.register_open("WEBP", WebPImageFile, _accept)
 Image.register_save("WEBP", _save)
 
