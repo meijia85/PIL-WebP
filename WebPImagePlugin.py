@@ -24,10 +24,7 @@ class WebPImageFile(ImageFile.ImageFile):
 
         assert (fwidth == width) and (fheight == height)
         self.size = width, height
-        #self.fp = StringIO.StringIO(data)
-        with open('/tmp/123.webp', 'wb') as f:
-            f.write(data)
-        self.fp = open('/tmp/123.webp', 'rb')
+        self.fp = StringIO.StringIO(data)
         self.tile = [("raw", (0, 0) + self.size, 0, self.mode)]
 
 def _save(im, fp, filename):
