@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <webp/encode.h>
 #include <webp/decode.h>
+#include <stdbool.h>
 
 typedef size_t (*WebPEncodeFunc)(const uint8_t*, int, int, int, float, uint8_t**);
 typedef uint8_t* (*WebPDecodeFunc)(const uint8_t*, size_t, int*, int *);
@@ -48,7 +49,7 @@ PyObject* WebPEncodeRGBA_wrapper(PyObject* self, PyObject* args)
     return encode_wrapper(&WebPEncodeRGBA, self, args);
 }
 
-PyObject* decode_wrapper(WebPDecodeFunc decode_func, PyObject* self, PyObject* args)
+PyObject* decode_wrapper(WebPDecodeFunc decode_func, bool has_alpha, PyObject* self, PyObject* args)
 {
     PyStringObject *webp_string;
 
@@ -62,21 +63,22 @@ PyObject* decode_wrapper(WebPDecodeFunc decode_func, PyObject* self, PyObject* a
 
     int width;
     int height;
-    uint8_t *output = WebPDecodeRGB(webp, size, &width, &height);
 
-    PyObject *ret = PyString_FromStringAndSize(output, width * height * 3);
+    uint8_t *output = decode_func(webp, size, &width, &height);
+
+    PyObject *ret = PyString_FromStringAndSize(output, width * height * (3+has_alpha));
     free(output);
     return Py_BuildValue("Sii", ret, width, height);
 }
 
 PyObject* WebPDecodeRGB_wrapper(PyObject* self, PyObject* args) 
 {
-    return decode_wrapper(&WebPDecodeRGB, self, args);
+    return decode_wrapper(&WebPDecodeRGB, false, self, args);
 }
 
 PyObject* WebPDecodeRGBA_wrapper(PyObject* self, PyObject* args) 
 {
-    return decode_wrapper(&WebPDecodeRGBA, self, args);
+    return decode_wrapper(&WebPDecodeRGBA, true, self, args);
 }
 
 PyObject* WebPGetFeatures_wrapper(PyObject* self, PyObject* args)
