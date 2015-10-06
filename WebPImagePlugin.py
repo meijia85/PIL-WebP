@@ -13,13 +13,13 @@ class WebPImageFile(ImageFile.ImageFile):
 
     def _open(self):
         raw = self.fp.read()
-        fwidth, fheight, has_alpha = WebPGetFeatures(raw)                
+        fwidth, fheight, has_alpha = WebPGetFeatures(raw)
 
         if has_alpha:
             self.mode = "RGBA"
             data, width, height = WebPDecodeRGBA(raw)
         else :
-            self.mode = "RGB"        
+            self.mode = "RGB"
             data, width, height = WebPDecodeRGB(raw)
 
         assert (fwidth == width) and (fheight == height)
@@ -30,10 +30,10 @@ class WebPImageFile(ImageFile.ImageFile):
 def _save(im, fp, filename):
 
     quality = im.encoderinfo.get("quality", 80)
-    if im.mode == "RGB":    
-    	data = WebPEncodeRGB(im.tostring(), im.size[0], im.size[1], im.size[0] * 3, float(quality))
+    if im.mode == "RGB":
+        data = WebPEncodeRGB(im.tobytes(), im.size[0], im.size[1], im.size[0] * 3, float(quality))
     elif im.mode == "RGBA":
-	data = WebPEncodeRGBA(im.tostring(), im.size[0], im.size[1], im.size[0] * 4, float(quality))
+        data = WebPEncodeRGBA(im.tobytes(), im.size[0], im.size[1], im.size[0] * 4, float(quality))
     else:
         raise IOError("cannot write mode %s as WEBP" % im.mode)
     fp.write(data)
