@@ -32,7 +32,7 @@ PyObject* encode_wrapper(WebPEncodeFunc encode_func, PyObject* self, PyObject* a
     size_t ret_size = encode_func(data, width, height, stride, quality_factor, &output);
     if (ret_size > 0) {
         PyObject *ret = PyString_FromStringAndSize(output, ret_size);
-        free(output);
+        WebPFree(output);
         return ret;
     }
     Py_INCREF(Py_None);
@@ -66,9 +66,11 @@ PyObject* decode_wrapper(WebPDecodeFunc decode_func, bool has_alpha, PyObject* s
 
     uint8_t *output = decode_func(webp, size, &width, &height);
 
-    PyObject *ret = PyString_FromStringAndSize(output, width * height * (3+has_alpha));
-    free(output);
-    return Py_BuildValue("Sii", ret, width, height);
+    PyObject *ret0 = PyString_FromStringAndSize(output, width * height * (3+has_alpha));
+    WebPFree(output);
+    PyObject *ret = Py_BuildValue("Sii", ret0, width, height);
+    Py_XDECREF(ret0);
+    return ret;
 }
 
 PyObject* WebPDecodeRGB_wrapper(PyObject* self, PyObject* args) 
